@@ -1,0 +1,20 @@
+DigiVerify validation record (2026-11-09)
+
+Completed in the available build environment:
+- Python syntax compilation: PASS (`python -m py_compile app.py tests.py`).
+- ZIP extraction and source/template inspection: PASS.
+- Required page templates present: PASS (dashboard, verify, result, history, admin, analytics, rules, about).
+- Document categories and configured number-pattern rules inspected: Aadhaar, PAN, Passport, Voter ID, Driving Licence.
+- Risk decision threshold aligned to documentation: REJECTED at risk score >= 60; explicit suspicious markers and exact duplicate images are also rejected; low-risk pattern match can be APPROVED; uncertain cases remain REVIEW REQUIRED.
+- Windows launcher and Render configuration updated.
+
+Not completed / not claimed:
+- Automated unittest suite NOT RUN successfully: the environment does not have Flask installed, and package installation could not reach the package index (network/DNS unavailable).
+- OCR end-to-end NOT RUN: no Tesseract executable is installed in this build environment and no live OCR fixture run was performed.
+- Windows runtime NOT TESTED on the user's computer.
+- Render deployment NOT TESTED.
+
+After installing requirements locally, run:
+  python -m unittest tests.py -v
+
+Tesseract OCR must also be installed separately on Windows. Use fictional, watermarked sample documents only. This project is a rule-based academic screening prototype, not official government identity verification.

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container my-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">🔍 Identity Document Analysis (Automated)</h5>
+                    <span class="badge bg-secondary">ID: {{ doc.ref }}</span>
+                </div>
+                <div class="card-body text-center py-5">
+                    
+                    <!-- 🚨 STRICT AUTOMATED STATUS UI OVERRIDE -->
+                    {% if doc.status == 'Approved' %}
+                        <div class="display-4 text-success mb-3">🟢 Approved</div>
+                        <p class="text-muted">System Auto-Decision: Verified Successfully.</p>
+                    {% else %}
+                        <div class="display-4 text-danger mb-3">🔴 Rejected</div>
+                        <p class="text-muted text-danger fw-bold">System Auto-Decision: Failed Security Protocol.</p>
+                    {% endif %}
+
+                    <div class="mt-4">
+                        <h5>Risk Score: <span class="badge {% if doc.risk_score >= 45 %}bg-danger{% else %}bg-success{% endif %}">{{ doc.risk_score }}/100</span></h5>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">📋 Screening Indicators</h6>
+                </div>
+                <div class="card-body">
+                    <p><strong>Document Type:</strong> {{ doc.document_type }}</p>
+                    <p><strong>Extracted Number:</strong> <span class="text-danger fw-bold">{{ doc.document_number or "NOT DETECTED" }}</span></p>
+                    {% if doc.warnings %}
+                        <div class="alert alert-warning">
+                            <strong>Warnings Detected:</strong><br>
+                            {{ doc.warnings }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">📝 Raw OCR Extracted Text</h6>
+                </div>
+                <div class="card-body bg-dark text-light">
+                    <pre class="mb-0" style="white-space: pre-wrap;">{{ doc.ocr_text }}</pre>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="/verify" class="btn btn-primary">➕ Verify Another Document</a>
+                <a href="/" class="btn btn-secondary">🏠 Back to Dashboard</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
