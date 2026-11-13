@@ -56,13 +56,11 @@ def get_ocr(path):
     try:
         processed = preprocess(path)
         best_text = ''
-        # कार्ड सीधा या 90/180/270 डिग्री घूमा हो, चारों तरफ से चेक करेगा
-        for angle in:
+        for angle in (0, 90, 270, 180):
             img = processed.rotate(angle, expand=True) if angle else processed
             text = pytesseract.image_to_string(img, config='--oem 1 --psm 6', timeout=15)
             if len(text.strip()) > len(best_text.strip()):
                 best_text = text
-            # अगर 12 अंकों का नंबर या कोई पैटर्न मिल जाए तो तुरंत रुक जाए
             if re.search(r'\d{4}[ -]?\d{4}[ -]?\d{4}', text) or re.search(r'[A-Z]{5}\d{4}[A-Z]', text, re.I):
                 best_text = text
                 break
@@ -71,6 +69,7 @@ def get_ocr(path):
     except Exception as e:
         print("OCR Error:", e)
         return '', 0
+
 
 
 def extract_fields(doc_type, text):
