@@ -45,30 +45,29 @@ def init_db():
 def preprocess(path):
     im = Image.open(path).convert('RGB')
     im = ImageOps.exif_transpose(im)
-    if im.width > 900:
-        scale = 900 / im.width
-        im = im.resize((900, int(im.height * scale)))
-    gray = ImageOps.grayscale(im)
-    gray = ImageOps.autocontrast(gray)
-    return ImageEnhance.Contrast(gray).enhance(1.5)
+    if im.width > 1000:
+        scale = 1000 / im.width
+        im = im.resize((1000, int(im.height * scale)))
+    return ImageOps.grayscale(im)
 
 def get_ocr(path):
     try:
         processed = preprocess(path)
-        best_text = ''
-        for angle in (0, 90, 270, 180):
-            img = processed.rotate(angle, expand=True) if angle else processed
-            text = pytesseract.image_to_string(img, config='--oem 1 --psm 6', timeout=15)
-            if len(text.strip()) > len(best_text.strip()):
-                best_text = text
-            if re.search(r'\d{4}[ -]?\d{4}[ -]?\d{4}', text) or re.search(r'[A-Z]{5}\d{4}[A-Z]', text, re.I):
-                best_text = text
-                break
-        confidence = 85.0 if len(best_text.strip()) > 10 else 0
-        return best_text, confidence
+        text = pytesseract.image_to_string(processed, config='--oem 1 --psm 3', timeout=60)
+        if not re.search(r'\d{4}[ -]?\d{4}[ -]?\d{4}', text):
+            for angle in (90, 270, 180):
+                img = processed.rotate(angle, expand=True)
+                t = pytesseract.image_to_string(img, config='--oem 1 --psm 3', timeout=60)
+                if len(t.strip()) > len(text.strip()):
+                    text = t
+                if re.search(r'\d{4}[ -]?\d{4}[ -]?\d{4}', t):
+                    text = t
+                    break
+        confidence = 88.0 if len(text.strip()) > 10 else 0
+        return text, confidence
     except Exception as e:
-        print("OCR Error:", e)
-        return '', 0
+        print("OCR Error:", repr(e))
+        return f"OCR_ERROR: {e}", 0
 
 
 
