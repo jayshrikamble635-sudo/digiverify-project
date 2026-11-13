@@ -45,8 +45,9 @@ def init_db():
 def preprocess(path):
     im = Image.open(path).convert('RGB')
     im = ImageOps.exif_transpose(im)
-    if im.width < 1600:
+       if im.width < 1600:
         scale = min(2.0, 1600 / max(im.width, 1)); im = im.resize((int(im.width*scale), int(im.height*scale)))
+
     gray = ImageOps.grayscale(im)
     gray = ImageOps.autocontrast(gray)
     gray = ImageEnhance.Contrast(gray).enhance(1.6)
