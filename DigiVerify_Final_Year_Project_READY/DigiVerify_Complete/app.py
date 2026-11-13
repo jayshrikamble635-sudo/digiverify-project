@@ -45,37 +45,21 @@ def init_db():
 def preprocess(path):
     im = Image.open(path).convert('RGB')
     im = ImageOps.exif_transpose(im)
-    if im.width > 1200:
-        scale = 1200 / im.width
-        im = im.resize((1200, int(im.height * scale)))
-    elif im.width < 800:
-        scale = min(1.5, 1000 / max(im.width, 1))
-        im = im.resize((int(im.width * scale), int(im.height * scale)))
-
+    if im.width > 900:
+        scale = 900 / im.width
+        im = im.resize((900, int(im.height * scale)))
     gray = ImageOps.grayscale(im)
     gray = ImageOps.autocontrast(gray)
-    gray = ImageEnhance.Contrast(gray).enhance(1.6)
-    return gray.filter(ImageFilter.SHARPEN)
-
+    return ImageEnhance.Contrast(gray).enhance(1.5)
 
 def get_ocr(path):
     try:
         processed = preprocess(path)
-        data = pytesseract.image_to_data(processed, config='--oem 3 --psm 6', output_type=Output.DICT)
-        words, confs = [], []
-        for word, conf in zip(data.get('text', []), data.get('conf', [])):
-            word = word.strip()
-            try: c = float(conf)
-            except (TypeError, ValueError): c = -1
-            if word:
-                words.append(word)
-                if c >= 0: confs.append(c)
-        text = ' '.join(words)
-        confidence = round(sum(confs)/len(confs), 1) if confs else 0
-        if len(text.strip()) < 12:
-            text = pytesseract.image_to_string(processed, config='--oem 3 --psm 11')
+        text = pytesseract.image_to_string(processed, config='--oem 1 --psm 6', timeout=20)
+        confidence = 85.0 if len(text.strip()) > 10 else 0
         return text, confidence
-    except Exception:
+    except Exception as e:
+        print("OCR Error:", e)
         return '', 0
 
 def extract_fields(doc_type, text):
